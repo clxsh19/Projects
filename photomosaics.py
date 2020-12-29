@@ -40,30 +40,32 @@ def source_img(r1, g1, b1, canvas, i, j):
 
     file_path = os.path.join(folder_path, s_filename)
     source_img = Image.open(file_path)
-    resize_img =  source_img.resize((10, 10))
-    Image.Image.paste(canvas, resize_img , (i,j))
+    resize_img =  source_img.resize((SIDE, SIDE))
+    Image.Image.paste(canvas, resize_img , (j,i))
 
 def main(image, canvas):
     # cropping a part of image one at a time 
     for i in range(0 ,HEIGHT ,SIDE):
         for j in range(0 ,WIDTH ,SIDE):
             # dimensions for cropping
-            dimension = (i ,j ,i + SIDE ,j + SIDE)
+            dimension = (j ,i ,j + SIDE ,i + SIDE)
             crop_img = image.crop(dimension)   
             
             # getting crop image pixels
             crop_pixels = crop_img.getdata()
             r1, g1, b1 = add_all_pixels(crop_pixels)
             # average of rgb
-            r1, g1, b1 = r1//100, g1//100, b1//100
-            pixelate(image, i, j, r1, g1, b1)
-            #source_img(r1, g1, b1, canvas, i, j)
+            r1, g1, b1 = r1//DIV, g1//DIV, b1//DIV
+            #pixelate(image, i, j, r1, g1, b1)
+            source_img(r1, g1, b1, canvas, i, j)
 
-path = r"C:\Users\ngour\pineapple.jpg"
+path = r"C:\Users\ngour\k.jpg"
 image = Image.open(path)
 WIDTH, HEIGHT = image.size
-SIDE = 10
+SIDE = 5
+DIV = SIDE*SIDE
 
 canvas = Image.new(mode = "RGB", size = (WIDTH ,HEIGHT), color = None)
 main(image, canvas)
 canvas.show()
+canvas = canvas.save("2.png")
