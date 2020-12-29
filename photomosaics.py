@@ -3,7 +3,7 @@ import os
 import math
 import json
 
-Filename = 'pokemon.jpg' #input("Filename: ")
+Filename = input("Filename: ")
 path = os.path.abspath(Filename)
 IMAGE = Image.open(path)
 
@@ -55,7 +55,7 @@ def Calculate_Similarity(r1, g1, b1, r2, g2, b2):
     return (round(similarity))
 
 def source_image(i, j, new_img, r1, g1, b1):
-    # if cache file exists open it
+    # open rgb values file
     Filename_ = 'cache.json'
     path_ = os.path.abspath(Filename_)
     RGB_VALS = open(path_ ,"r")
@@ -91,6 +91,8 @@ def run(image, NEW_IMAGE):
             # average rgb of cropped image
             r1, g1, b1 = r1//DIV, g1//DIV, b1//DIV
             source_image(i, j, NEW_IMAGE, r1, g1, b1)
+
+# check if cache file exists
 try:
     check = open("cache.json")
     check.close()
