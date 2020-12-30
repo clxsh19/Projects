@@ -8,6 +8,7 @@ SNAKE_COLOR = 0, 255, 0
 SIZE = 10
 
 class Snake_Game:
+
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode(BOARD_SIZE)
@@ -17,8 +18,19 @@ class Snake_Game:
     def clear_screen(self):
         self.screen.fill(BG_COLOR)
 
+    def direction(self):
+        if self.d == 'left':
+            self.j -= 10
+        elif self.d == 'right':
+            self.j += 10
+        elif self.d == 'up':
+            self.i -= 10
+        elif self.d == 'down':
+            self.i += 10
+
     def render(self):
         self.clear_screen()
+        self.direction()
         pygame.draw.rect(self.screen, SNAKE_COLOR, pygame.Rect(self.j, self.i, SIZE, SIZE))  
         pygame.display.flip()
 
@@ -29,22 +41,29 @@ class Snake_Game:
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.unicode == 'w':
-                    self.i -= 10
+                    self.d = 'up'
                 if event.unicode == 's':
-                    self.i += 10
+                    self.d = 'down'
                 if event.unicode == 'a':
-                    self.j -= 10
+                    self.d = 'left'
                 if event.unicode == 'd':
-                    self.j += 10
+                    self.d = 'right'
+                if event.unicode == 'p':
+                    if self.pause == False:
+                        self.pause = True
+                    else:
+                        self.pause = False 
 
     def run(self):
         self.j = 400
         self.i = 300
+        self.d = None
+        self.pause = False
         while True:
             self.handle_events()
-            self.render()
-            self.clock.tick(20)
-            
+            if self.pause == False:
+                self.render()
+            self.clock.tick(10)         
 
 game = Snake_Game()
 game.run()
