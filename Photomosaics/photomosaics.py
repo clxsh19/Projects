@@ -3,7 +3,7 @@ import os
 import math
 import json
 
-Filename = input("Filename: ")
+Filename = 'pineapple.jpg'#input("Filename: ")
 path = os.path.abspath(Filename)
 IMAGE = Image.open(path)
 
@@ -63,8 +63,9 @@ def source_image(i, j, new_img, r1, g1, b1):
     Value = 300
 
     # enter folder name of source images
-    folder_name = 'data'
+    folder_name = 'data2'
     folder_path = os.path.abspath(folder_name)
+    sim_filename  = None
     for filename in os.listdir(folder_path):
         r2, g2, b2 = Data[filename][0], Data[filename][1], Data[filename][2]  
         sim_value = Calculate_Similarity(r1 ,g1 ,b1 ,r2 ,g2 ,b2)
@@ -72,7 +73,7 @@ def source_image(i, j, new_img, r1, g1, b1):
             Value = sim_value
             sim_filename = filename
 
-    file_path = os.path.join(folder_path, sim_filename)
+    file_path = os.path.join(folder_path, str(sim_filename))
     source_img = Image.open(file_path)
     resize_img =  source_img.resize((SIDE, SIDE))
     Image.Image.paste(new_img, resize_img, (j,i))
