@@ -1,38 +1,7 @@
 from PIL import Image
-import os
+import os, json
 import math
-import json
 
-Filename = 'pineapple.jpg'#input("Filename: ")
-path = os.path.abspath(Filename)
-IMAGE = Image.open(path)
-
-WIDTH, HEIGHT = IMAGE.size
-SIDE = 10
-NEW_IMAGE = Image.new(mode = "RGB", size = (WIDTH ,HEIGHT), color = None)
-DIV = SIDE*SIDE
-
-def create_file():
-    File = open("cache.json", "w")
-    print("Creating json file...")
-    Folder_name = input("Source_Folder name: ")
-    folder_path = os.path.abspath(Folder_name)
-    
-    data = {}
-    for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, filename)
-        source_image = Image.open(file_path)
-        resize_image =  source_image.resize((10, 10))
-
-        pixels = resize_image.getdata()
-        r2, g2, b2 = Add_all_pixels(pixels)
-        r2, g2, b2 = r2//DIV, g2//DIV, b2//DIV
-
-        # adding rgb value to dict
-        data.update({filename : (r2,g2,b2)})
-
-    json.dump(data, File)  
-    File.close()
 
 def pixelate(image, i, j, r, g, b):
     px_image = image.load()
@@ -54,7 +23,7 @@ def Calculate_Similarity(r1, g1, b1, r2, g2, b2):
     similarity = math.sqrt( ((r2 - r1)**2) + ((g2 - g1)**2) + ((b2 - b1)**2) )
     return (round(similarity))
 
-def source_image(i, j, new_img, r1, g1, b1):
+def source_image(i, j, new_img, r1, g1, b1, SIDE, folder_path):
     # open rgb values file
     Filename_ = 'cache.json'
     path_ = os.path.abspath(Filename_)
@@ -62,9 +31,6 @@ def source_image(i, j, new_img, r1, g1, b1):
     Data = json.load(RGB_VALS)
     Value = 300
 
-    # enter folder name of source images
-    folder_name = 'data2'
-    folder_path = os.path.abspath(folder_name)
     sim_filename  = None
     for filename in os.listdir(folder_path):
         r2, g2, b2 = Data[filename][0], Data[filename][1], Data[filename][2]  
@@ -78,7 +44,7 @@ def source_image(i, j, new_img, r1, g1, b1):
     resize_img =  source_img.resize((SIDE, SIDE))
     Image.Image.paste(new_img, resize_img, (j,i))
 
-def run(image, NEW_IMAGE):
+def start(image, new_image, WIDTH, HEIGHT, SIDE, DIV, folder_path):
     # cropping a part of main_image
     for i in range(0 ,HEIGHT ,SIDE):
         for j in range(0 ,WIDTH ,SIDE):
@@ -91,19 +57,5 @@ def run(image, NEW_IMAGE):
             r1, g1, b1 = Add_all_pixels(Crop_img_pixels)
             # average rgb of cropped image
             r1, g1, b1 = r1//DIV, g1//DIV, b1//DIV
-            source_image(i, j, NEW_IMAGE, r1, g1, b1)
-
-# check if cache file exists
-try:
-    check = open("cache.json")
-    check.close()
-except:
-    create_file()
-
-print("running...")
-run(IMAGE, NEW_IMAGE)
-NEW_IMAGE.show()
-
-# saving
-name = input("Name: ")
-NEW_IMAGE = NEW_IMAGE.save("%s.jpg" %(name))
+            source_image(i, j, new_image, r1, g1, b1, SIDE, folder_path)
+    print('image ready')
