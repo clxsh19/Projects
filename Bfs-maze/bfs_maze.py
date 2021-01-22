@@ -1,6 +1,7 @@
-# BFS algorith for a maze solving visulization using pygame
+# BFS algorith for maze solving visulization using pygame
 
-import pygame, sys
+import pygame
+import sys
 from collections import deque
 
 
