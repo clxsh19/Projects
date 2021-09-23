@@ -3,6 +3,8 @@ import numpy as np
 import sys
 from piece import King, Pawn, Knight, Linear_piece, King
 from piece import check_for_check
+from player import Player
+import random
 class Chess():
 
     def __init__(self):
@@ -18,13 +20,13 @@ class Chess():
         #                        ['wP','wP','wP','wP','wP','wP','wP','wP'],
         #                        ['wR','wN','wB','wQ','wK','wB','wN','wR']
         #                        ])
-        self.board = np.array([['bR','bN','--','bQ','bK','bB','--','bR'],
+        self.board = np.array([['bR','bN','--','bQ','bK','bB','bR','--'],
                                ['bP','bP','--','bP','--','bP','--','bP'],
+                               ['--','--','--','--','--','--','--','bB'],
                                ['--','--','--','--','--','--','--','--'],
-                               ['--','--','--','--','--','--','--','--'],
-                               ['--','--','--','--','wN','--','--','--'],
-                               ['--','bB','--','wP','--','--','--','--'],
-                               ['wP','wP','--','--','wP','wP','--','wP'],
+                               ['--','bB','--','--','wN','--','--','bP'],
+                               ['--','--','--','--','--','--','wP','--'],
+                               ['wP','wP','--','wR','wP','wP','--','wP'],
                                ['wR','--','--','--','wK','--','--','wR']
                                ])
 
@@ -81,10 +83,22 @@ class Chess():
 
         pygame.display.update()
 
+    def do_castle_move_if_possible(self, selected_sq_loc, king_n):
+        # if king has left side castle right
+        if self.castle[king_n][0] == True:
+            # selected move is the left side castle move
+            if selected_sq_loc == (self.selected_piece_loc[0],2):
+                self.board[self.selected_piece_loc[0],3] = self.current_player+'R'
+                self.board[self.selected_piece_loc[0],0] = '--'
+        # right side
+        if self.castle[king_n][1] == True:
+            if selected_sq_loc == (self.selected_piece_loc[0],6):
+                self.board[self.selected_piece_loc[0],5] = self.current_player+'R'
+                self.board[self.selected_piece_loc[0],7] = '--'
+
     def get_move(self, selected_sq_loc):
         enemy_color = "w" if self.current_player == "b" else "b"
 
-        # else:
         # if a peice is selected, check the peice and get its valid move
         if self.selected_piece_loc:
             current_king = self.current_player+'K'
@@ -146,56 +160,34 @@ class Chess():
             if self.board[self.selected_piece_loc][0] == self.current_player:
                 if self.board[selected_sq_loc][0] != self.current_player:
 
-                    #if rook moves king looses that side castle right
+                    # if rook moves king looses that side castle right
                     if self.board[self.selected_piece_loc][1] == 'R':
-                        # white rook
-                        if self.board[self.selected_piece_loc][0] == 'w':
-                            # left side rook moved
-                            if self.selected_piece_loc[1] == 0:
-                                self.castle[0][0] = False
-                            # right side rook moved
-                            elif self.selected_piece_loc[1] == 7:
-                                self.castle[0][1] = False
-
-                        # black rook
-                        if self.board[self.selected_piece_loc][0] == 'b':
-                            # left side rook moved
-                            if self.selected_piece_loc[1] == 0:
-                                self.castle[1][0] = False
-                            # right side rook moved
-                            elif self.selected_piece_loc[1] == 7:
-                                self.castle[1][1] = False
-                    
+                        
+                        if self.selected_piece_loc[1] == 0:
+                                self.castle[king_n][0] = False
+                        elif self.selected_piece_loc[1] == 7:
+                            self.castle[king_n][1] = False
+  
                      # castle move
                     if self.board[self.selected_piece_loc][1] == 'K':
                         if self.check[king_n] == False:
-                            # if king has left side castle right
-                            if self.castle[king_n][0] == True:
-                                # selected move is the left side castle move
-                                if selected_sq_loc == (self.selected_piece_loc[0],2):
-                                    self.board[self.selected_piece_loc[0],3] = self.current_player+'R'
-                                    self.board[self.selected_piece_loc[0],0] = '--'
-                            # right side
-                            if self.castle[king_n][1] == True:
-                                if selected_sq_loc == (self.selected_piece_loc[0],6):
-                                    self.board[self.selected_piece_loc[0],5] = self.current_player+'R'
-                                    self.board[self.selected_piece_loc[0],7] = '--'
-                            self.board[selected_sq_loc] = self.board[self.selected_piece_loc]
-                            self.board[self.selected_piece_loc] = '--'
+                            # castle
+                            self.do_castle_move_if_possible(selected_sq_loc, king_n)
 
-                        else:
-                            self.board[selected_sq_loc] = self.board[self.selected_piece_loc]
-                            self.board[self.selected_piece_loc] = '--'
-                            
+                        # else:
+                        # self.board[selected_sq_loc] = self.board[self.selected_piece_loc]
+                        # self.board[self.selected_piece_loc] = '--'
 
                         # king moved so it looses it's right to castle
                         self.castle[king_n][0] = False
                         self.castle[king_n][1] = False
 
                     # making move
-                    if self.board[self.selected_piece_loc][1] != 'K' and self.board[self.selected_piece_loc] != '--':
-                        self.board[selected_sq_loc] = self.board[self.selected_piece_loc]
-                        self.board[self.selected_piece_loc] = '--'
+                    # elif self.board[self.selected_piece_loc][1] != 'K' and self.board[self.selected_piece_loc] != '--':
+                    #     self.board[selected_sq_loc] = self.board[self.selected_piece_loc]
+                    #     self.board[self.selected_piece_loc] = '--'
+                    self.board[selected_sq_loc] = self.board[self.selected_piece_loc]
+                    self.board[self.selected_piece_loc] = '--'
                     # removing selected piece
                     self.selected_piece_loc=()
 
@@ -210,8 +202,6 @@ class Chess():
                     king_loc = np.where(self.board == current_king)
                     row, col = king_loc[0][0], king_loc[1][0]
                     self.check = check_for_check(self.current_player, self.board, self.check, row, col)
-                    # print(self.check)
-                    # print()
 
                 else:
                     if self.board[selected_sq_loc][0] != '--':
@@ -225,17 +215,19 @@ class Chess():
         clock = pygame.time.Clock()
         images = self.load_images()
 
+
         while True:
             for event in pygame.event.get():
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    #select a piece
-                    if event.button == 1:
-                        x,y = pygame.mouse.get_pos()
-                        col = round(x/80-0.5)
-                        row = round(y/80-0.5)
-                        selected_sq_loc = (row,col)
-                        
-                        self.get_move(selected_sq_loc)
+                if self.current_player == 'w':
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        #select a piece
+                        if event.button == 1:
+                            x,y = pygame.mouse.get_pos()
+                            col = round(x/80-0.5)
+                            row = round(y/80-0.5)
+                            selected_sq_loc = (row,col)
+                            
+                            self.get_move(selected_sq_loc)
                             
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -243,7 +235,14 @@ class Chess():
 
             self.draw_board(screen)
             self.draw_pieces(screen, images)
-            clock.tick(10)
+
+            if self.current_player == 'b':
+                player = Player(self.board, self.current_player, self.check, self.castle)
+                selected_sq_loc, self.selected_piece_loc = player.random_player()
+                self.get_move(selected_sq_loc)
+
+            
+            clock.tick(6)
 
 chess = Chess()
 chess.main()
